@@ -71,7 +71,32 @@ def heuristic(map):
     # √(posX-goalX)^2 + (posY-goalY)^2
     return (sqrt(pow(currPos[0]-goalPos[0],2)+pow(currPos[1]-goalPos[1],2)))
 
-# TODO: implement expand
+def expand(map):
+    maps = []
+    pos = position(map)
+    # check north
+    if(pos[0]-1>0 and map.map[pos[0]-1][pos[1]]==' '):
+        newPath = map.path.copy()
+        newPath.append("north")
+        maps.append(Map(map.map.copy(),newPath))
+    # check south
+    if(pos[0]+1<len(map.map) and map.map[pos[0]+1][pos[1]]==' '):
+        newPath = map.path.copy()
+        newPath.append("south")
+        maps.append(Map(map.map.copy(),newPath))
+    # check west
+    if(pos[1]-1>0 and map.map[pos[0]][pos[1]-1]==' '):
+        newPath = map.path.copy()
+        newPath.append("west")
+        maps.append(Map(map.map.copy(),newPath))
+    # check east
+    if(pos[1]+1<len(map.map[pos[0]]) and map.map[pos[0]][pos[1]+1]==' '):
+        newPath = map.path.copy()
+        newPath.append("east")
+        maps.append(Map(map.map.copy(),newPath))
+    return maps
 
-maps = [Map(readMap('map1.txt'),["north","east"])]
+maps = [Map(readMap('map1.txt'),[])]
 printMap(maps[0])
+for e in expand(maps[0]):
+    printMap(e)
