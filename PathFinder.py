@@ -6,9 +6,11 @@ Created on Wed Aug 21 17:11:14 2019
 @author: Joseph Hall
 """
 from math import pow, sqrt
-#from math import sqrt
+import sys
+import time
 
 directions = {"north":-1, "south":1, "east":1, "west":-1}
+debug = True
 
 class Map:
     def __init__(self,map,path):
@@ -68,8 +70,11 @@ def cost(map):
 def heuristic(map):
     goalPos = goal(map)
     currPos = position(map)
-    # √(posX-goalX)^2 + (posY-goalY)^2
+    # √((posX-goalX)^2 + (posY-goalY)^2)
     return (sqrt(pow(currPos[0]-goalPos[0],2)+pow(currPos[1]-goalPos[1],2)))
+
+def heuristicAndCost(map):
+    return(heuristic(map)+cost(map))
 
 def expand(map):
     maps = []
@@ -85,7 +90,7 @@ def expand(map):
         newPath.append("south")
         maps.append(Map(map.map.copy(),newPath))
     # check west
-    if(pos[1]-1>0 and map.map[pos[0]][pos[1]-1]==' '):
+    if(pos[1]-1>0 and (map.map[pos[0]][pos[1]-1]==' ' or map.map[pos[0]][pos[1]-1]=='G')):
         newPath = map.path.copy()
         newPath.append("west")
         maps.append(Map(map.map.copy(),newPath))
@@ -96,7 +101,66 @@ def expand(map):
         maps.append(Map(map.map.copy(),newPath))
     return maps
 
-maps = [Map(readMap('map1.txt'),[])]
-printMap(maps[0])
-for e in expand(maps[0]):
-    printMap(e)
+def bestFirst(fileName):
+    maps = [Map(readMap(fileName),[])]
+    # maps that have been expanded
+    vistedMaps = [Map(readMap(fileName),[])]
+    goalPos = goal(maps[0])
+    numExpansions = 0
+    # loop through til the goal is reached
+    while True:
+        if(debug):
+            printMap(maps[0])
+            print("Number of expansions: " + str(numExpansions))
+            #time.sleep(0.5)
+        numExpansions += 1
+        for m in expand(maps.pop(0)):
+            # if one of the expanded states has reached the goal
+            if(goalPos==position(m)):
+                printMap(m)
+                print("Number of expansions: " + str(numExpansions))
+                return
+            if not m in vistedMaps:
+                maps.append(m)
+                vistedMaps.append(m)
+        maps = sorted(maps,key=heuristic)
+    
+def aStar(fileName):
+    maps = [Map(readMap(fileName),[])]
+    # maps that have been visted
+    vistedMaps = [Map(readMap(fileName),[])]
+    goalPos = goal(maps[0])
+    numExpansions = 0
+    # loop through til the goal is reached
+    while True:
+        if(debug):
+            printMap(maps[0])
+            print("Number of expansions: " + str(numExpansions))
+            #time.sleep(0.5)
+        numExpansions += 1
+        vistedMaps.append(maps[0])
+        for m in expand(maps.pop(0)):
+            # if one of the expanded states has reached the goal
+            if(goalPos==position(m)):
+                printMap(m)
+                print("Number of expansions: " + str(numExpansions))
+                return
+            if not m in vistedMaps:
+                maps.append(m)
+                vistedMaps.append(m)
+        maps = sorted(maps,key=heuristicAndCost)
+
+def main():
+    bestFirst('map1.txt')
+    '''
+    if len(sys.argv)!=3:
+        print("Usage: python PathFinder <debug> <filename> <algorithm>")
+        sys.exit(1)
+    maps = [Map(readMap('map1.txt'),[])]
+    printMap(maps[0])
+    for e in expand(maps.pop(0)):
+        maps.append(e)
+    maps = [Map(readMap('map1.txt'),[])]
+    '''
+        
+main()
