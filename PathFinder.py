@@ -71,7 +71,9 @@ def heuristic(map):
     goalPos = goal(map)
     currPos = position(map)
     # √((posX-goalX)^2 + (posY-goalY)^2)
-    return (sqrt(pow(currPos[0]-goalPos[0],2)+pow(currPos[1]-goalPos[1],2)))
+    xValue = currPos[0]-goalPos[0]
+    yValue = currPos[1]-goalPos[1]
+    return sqrt(xValue**2+yValue**2)
 
 def heuristicAndCost(map):
     return(heuristic(map)+cost(map))
@@ -80,12 +82,12 @@ def expand(map):
     maps = []
     pos = position(map)
     # check north
-    if(pos[0]-1>0 and map.map[pos[0]-1][pos[1]]==' '):
+    if(pos[0]-1>0 and (map.map[pos[0]-1][pos[1]]==' ' or map.map[pos[0]-1][pos[1]]=='G')):
         newPath = map.path.copy()
         newPath.append("north")
         maps.append(Map(map.map.copy(),newPath))
     # check south
-    if(pos[0]+1<len(map.map) and map.map[pos[0]+1][pos[1]]==' '):
+    if(pos[0]+1<len(map.map) and (map.map[pos[0]+1][pos[1]]==' '  or map.map[pos[0]+1][pos[1]]=='G')):
         newPath = map.path.copy()
         newPath.append("south")
         maps.append(Map(map.map.copy(),newPath))
@@ -95,7 +97,7 @@ def expand(map):
         newPath.append("west")
         maps.append(Map(map.map.copy(),newPath))
     # check east
-    if(pos[1]+1<len(map.map[pos[0]]) and map.map[pos[0]][pos[1]+1]==' '):
+    if(pos[1]+1<len(map.map[pos[0]]) and (map.map[pos[0]][pos[1]+1]==' ' or map.map[pos[0]][pos[1]+1]=='G')):
         newPath = map.path.copy()
         newPath.append("east")
         maps.append(Map(map.map.copy(),newPath))
@@ -120,7 +122,7 @@ def bestFirst(fileName):
                 printMap(m)
                 print("Number of expansions: " + str(numExpansions))
                 return
-            if not m in vistedMaps:
+            if m not in vistedMaps:
                 maps.append(m)
                 vistedMaps.append(m)
         maps = sorted(maps,key=heuristic)
@@ -128,7 +130,7 @@ def bestFirst(fileName):
 def aStar(fileName):
     maps = [Map(readMap(fileName),[])]
     # maps that have been visted
-    vistedMaps = [Map(readMap(fileName),[])]
+    vistedPaths = [[]]
     goalPos = goal(maps[0])
     numExpansions = 0
     # loop through til the goal is reached
@@ -136,31 +138,22 @@ def aStar(fileName):
         if(debug):
             printMap(maps[0])
             print("Number of expansions: " + str(numExpansions))
-            #time.sleep(0.5)
+            #time.sleep(1)
         numExpansions += 1
-        vistedMaps.append(maps[0])
         for m in expand(maps.pop(0)):
             # if one of the expanded states has reached the goal
             if(goalPos==position(m)):
                 printMap(m)
                 print("Number of expansions: " + str(numExpansions))
                 return
-            if not m in vistedMaps:
+            if m.path not in vistedPaths:
                 maps.append(m)
-                vistedMaps.append(m)
+                vistedPaths.append(m.path)
         maps = sorted(maps,key=heuristicAndCost)
+        #print(heuristicAndCost(maps[0]))
+        #print(min([heuristicAndCost(m) for m in maps]))
 
 def main():
-    bestFirst('map1.txt')
-    '''
-    if len(sys.argv)!=3:
-        print("Usage: python PathFinder <debug> <filename> <algorithm>")
-        sys.exit(1)
-    maps = [Map(readMap('map1.txt'),[])]
-    printMap(maps[0])
-    for e in expand(maps.pop(0)):
-        maps.append(e)
-    maps = [Map(readMap('map1.txt'),[])]
-    '''
+    aStar('map2.txt')
         
 main()
