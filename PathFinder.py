@@ -10,7 +10,6 @@ import sys
 import time
 
 directions = {"north":-1, "south":1, "east":1, "west":-1}
-debug = True
 
 class Map:
     def __init__(self,map,path):
@@ -71,9 +70,9 @@ def heuristic(map):
     goalPos = goal(map)
     currPos = position(map)
     # √((posX-goalX)^2 + (posY-goalY)^2)
-    xValue = currPos[0]-goalPos[0]
-    yValue = currPos[1]-goalPos[1]
-    return sqrt(xValue**2+yValue**2)
+    xValue = pow((currPos[0]-goalPos[0]),2)
+    yValue = pow((currPos[1]-goalPos[1]),2)
+    return sqrt(xValue+yValue)
 
 def heuristicAndCost(map):
     return(heuristic(map)+cost(map))
@@ -103,7 +102,7 @@ def expand(map):
         maps.append(Map(map.map.copy(),newPath))
     return maps
 
-def bestFirst(fileName):
+def searchMap(debug,fileName,searchType):
     maps = [Map(readMap(fileName),[])]
     # maps that have been expanded
     vistedMaps = [Map(readMap(fileName),[])]
@@ -114,46 +113,42 @@ def bestFirst(fileName):
         if(debug):
             printMap(maps[0])
             print("Number of expansions: " + str(numExpansions))
-            #time.sleep(0.5)
+            print("Cost: " + str(cost(maps[0])))
+            time.sleep(0.5)
         numExpansions += 1
         for m in expand(maps.pop(0)):
             # if one of the expanded states has reached the goal
             if(goalPos==position(m)):
                 printMap(m)
                 print("Number of expansions: " + str(numExpansions))
+                print("Cost: " + str(cost(m)))
                 return
             if m not in vistedMaps:
-                maps.append(m)
+                if(searchType in ["a-star", "best-first", "breadth-first"]):
+                    maps.append(m)
+                elif(searchType=="depth-first"):
+                    #prepend m to the list of maps
+                    maps = [m] + maps
                 vistedMaps.append(m)
-        maps = sorted(maps,key=heuristic)
-    
-def aStar(fileName):
-    maps = [Map(readMap(fileName),[])]
-    # maps that have been visted
-    vistedPaths = [[]]
-    goalPos = goal(maps[0])
-    numExpansions = 0
-    # loop through til the goal is reached
-    while True:
-        if(debug):
-            printMap(maps[0])
-            print("Number of expansions: " + str(numExpansions))
-            #time.sleep(1)
-        numExpansions += 1
-        for m in expand(maps.pop(0)):
-            # if one of the expanded states has reached the goal
-            if(goalPos==position(m)):
-                printMap(m)
-                print("Number of expansions: " + str(numExpansions))
-                return
-            if m.path not in vistedPaths:
-                maps.append(m)
-                vistedPaths.append(m.path)
-        maps = sorted(maps,key=heuristicAndCost)
-        #print(heuristicAndCost(maps[0]))
-        #print(min([heuristicAndCost(m) for m in maps]))
+        if(searchType=="a-star"):
+            maps = sorted(maps,key=heuristicAndCost)
+        elif(searchType=="best-first"):
+            maps = sorted(maps,key=heuristic)            
 
 def main():
-    aStar('map2.txt')
+    alogrithms = ["a-star", "best-first", "breadth-first", "depth-first"]
+    if len(sys.argv)!=4 and len(sys.argv)!=3:
+        print(len(sys.argv))
+        print("Usage: python PathFinder <debug> <filename> <algorithm>")
+        sys.exit(1)
+    if(len(sys.argv)==4 and sys.argv[3] not in alogrithms) or (len(sys.argv)==3 and sys.argv[2] not in alogrithms):
+        print(sys.argv[2] + " is not a valid searching alogrithm")
+        print("Valid search alogrithms are: a-star, best-first, breadth-first, depth-first")
+        sys.exit(1)
+    if len(sys.argv)==4:
+        searchMap(True,str(sys.argv[2]),str(sys.argv[3]))
+    else:
+        searchMap(False,str(sys.argv[1]),str(sys.argv[2]))
+    #searchMap(False,"map.txt",'best-first')
         
 main()
