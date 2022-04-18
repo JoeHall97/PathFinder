@@ -1,5 +1,7 @@
 # compiled c output
 a.out
+# compiled java ouput
+*.class
 # debug files
 output.txt
 out.txt
