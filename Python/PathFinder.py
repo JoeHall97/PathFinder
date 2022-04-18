@@ -136,7 +136,7 @@ def searchMap(debug,fileName,search_type):
             visted_positions.append(m.curr_pos)
         
         if(search_type=="a-star"):
-            maps = sorted(maps,key=heuristicAndCost)
+            maps = sorted(maps,key=heuristicAndCost,reverse=False)
         elif(search_type=="best-first"):
             maps = sorted(maps,key=heuristic)            
 
