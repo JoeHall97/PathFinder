@@ -3,7 +3,9 @@ import java.io.FileNotFoundException;
 import java.util.Scanner;
 import java.util.Stack;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 
 public class PathFinder {
     public enum SEARCHTYPE {
@@ -13,50 +15,54 @@ public class PathFinder {
         ASTAR
     }
 
+    private static int _numExpansions;
+
     public static void main(String args[]) {
         PathFinder pathFinder = new PathFinder();
         if(args.length < 2) {
-            pathFinder.findPathInMap("../Maps/map.txt", SEARCHTYPE.DEPTHFIRST);
+            pathFinder.findPathInMap("../Maps/map.txt", SEARCHTYPE.BREADTHFIRST);
         } else {
             pathFinder.findPathInMap(args[0], SEARCHTYPE.valueOf(args[1].toUpperCase()));
         }
     }
 
     private void findPathInMap(String fileName, SEARCHTYPE searchType) {
-        Map initialMap = readInMap(fileName);
-        int[] goalPosition = initialMap.getGoalPosition();
+        Map initMap = readInMap(fileName);
         switch(searchType) {
             case BREADTHFIRST:
                 break;
             case BESTFIRST:
+                breadthFirstSearch(initMap);
                 break;
             case ASTAR:
                 break;
             case DEPTHFIRST:
             default:
-                depthFirstSearch(initialMap,goalPosition);
+                depthFirstSearch(initMap);
                 break;
         }
     }
 
-    private void depthFirstSearch(Map initialMap, int[] goalPosition) {
+    private void depthFirstSearch(Map initMap) {
         Stack<Map> mapFrontier = new Stack<Map>();
         List<int[]> vistedPositions = new ArrayList<int[]>();
-        mapFrontier.add(initialMap);
-        vistedPositions.add(initialMap.getCurrentPosition());
-        int numExpansions = 0;
+        int[] goalPosition = initMap.getGoalPosition();
+        Map nextMap;
+        _numExpansions = 0;
 
-        while(mapFrontier.size() > 0) {
-            Map temp = mapFrontier.pop();
-            ++numExpansions;
-            Map[] tempMaps = expandMapState(temp, vistedPositions);
+        mapFrontier.add(initMap);
+        vistedPositions.add(initMap.getCurrentPosition());
+
+        while((nextMap = mapFrontier.pop()) != null) {
+            ++_numExpansions;
+            Map[] tempMaps = expandMapState(nextMap, vistedPositions);
             for (Map m : tempMaps) {
                 if(m != null) {
                     // m.printMap();
                     // System.out.println();
                     if(m.getCurrentPosition()[0] == goalPosition[0] && m.getCurrentPosition()[1] == goalPosition[1]) {
                         m.printMap();
-                        System.out.println("NUMBER OF EXPANSIONS: " + numExpansions);
+                        System.out.println("NUMBER OF EXPANSIONS: " + _numExpansions);
                         return;
                     }
                     vistedPositions.add(m.getCurrentPosition());
@@ -65,6 +71,35 @@ public class PathFinder {
             }
         }
         System.out.println("NO PATH TO GOAL FOUND.");
+    }
+
+    private void breadthFirstSearch(Map initMap) {
+        Queue<Map> mapFrontier = new LinkedList<Map>();
+        List<int[]> vistedPositions = new ArrayList<int[]>();
+        int[] goalPosition = initMap.getGoalPosition();
+        Map nextMap;
+        _numExpansions = 0;
+
+        mapFrontier.add(initMap);
+        vistedPositions.add(initMap.getCurrentPosition());
+
+        while((nextMap = mapFrontier.poll()) != null) {
+            ++_numExpansions;
+            Map[] tempMaps = expandMapState(nextMap, vistedPositions);
+            for (Map m : tempMaps) {
+                if(m != null) {
+                    // m.printMap();
+                    // System.out.println();
+                    if(m.getCurrentPosition()[0] == goalPosition[0] && m.getCurrentPosition()[1] == goalPosition[1]) {
+                        m.printMap();
+                        System.out.println("NUMBER OF EXPANSIONS: " + _numExpansions);
+                        return;
+                    }
+                    vistedPositions.add(m.getCurrentPosition());
+                    mapFrontier.add(m);
+                }
+            }
+        }
     }
 
     private Map[] expandMapState(Map map, List<int[]> vistedPositions) {
