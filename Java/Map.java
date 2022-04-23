@@ -36,8 +36,8 @@ public class Map {
             System.err.println("ERROR: Map path or string is null");
             return;
         }
-        
-        int[] tempPosition = getStartPosition();    
+
+        int[] tempPosition = getStartPosition();
         for (DIRECTION d : this.mapPath) {
             switch(d) {
                 case NORTH:
