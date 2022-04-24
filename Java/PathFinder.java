@@ -20,14 +20,17 @@ public class PathFinder {
     }
 
     private static int _numExpansions;
+    private static SEARCHTYPE _selectedSearchType;
 
     public static void main(String args[]) {
         PathFinder pathFinder = new PathFinder();
         if(args.length < 2) {
-            pathFinder.findPathInMap("../Maps/map1.txt", SEARCHTYPE.DEPTHFIRST);
+            _selectedSearchType = SEARCHTYPE.DEPTHFIRST;
+            pathFinder.findPathInMap("../Maps/map1.txt");
         } else if(args.length == 2) {
             try {
-                pathFinder.findPathInMap(args[0], SEARCHTYPE.valueOf(args[1].toUpperCase()));
+                _selectedSearchType = SEARCHTYPE.valueOf(args[1].toUpperCase());
+                pathFinder.findPathInMap(args[0]);
             } catch(IllegalArgumentException exception) {
                 System.err.print(args[1] + " is not a valid search type. The valid search types are: [depthfirst, breadthfirst, bestfirst, astar]");
             }
@@ -36,13 +39,12 @@ public class PathFinder {
         }
     }
 
-    private void findPathInMap(String fileName, SEARCHTYPE searchType) {
+    private void findPathInMap(String fileName) {
         Map initMap = readInMap(fileName);
-        switch(searchType) {
+        switch(_selectedSearchType) {
             case ASTAR:
-                break;
             case BESTFIRST:
-                bestFirstSearch(initMap);
+                heuristicSearch(initMap);
                 break;
             case BREADTHFIRST:
                 breadthFirstSearch(initMap);
@@ -69,13 +71,7 @@ public class PathFinder {
             Map[] tempMaps = expandMapState(nextMap, vistedPositions);
             for (Map m : tempMaps) {
                 if(m != null) {
-                    // m.printMap();
-                    // System.out.println();
                     if(m.getCurrentPosition()[0] == goalPosition[0] && m.getCurrentPosition()[1] == goalPosition[1]) {
-                        // add goal back to map before printing
-                        // String line = m.getMap().get(goalPosition[0]);
-                        // line = line.substring(0,goalPosition[1]) + 'G' + line.substring(goalPosition[1]+1);
-                        // m.getMap().set(goalPosition[0],line);
                         m.printMap();
                         m.printPath();
                         System.out.println("NUMBER OF EXPANSIONS: " + _numExpansions);
@@ -105,13 +101,7 @@ public class PathFinder {
             Map[] tempMaps = expandMapState(nextMap, vistedPositions);
             for(Map m : tempMaps) {
                 if(m != null) {
-                    // m.printMap();
-                    // System.out.println();
                     if(m.getCurrentPosition()[0] == goalPosition[0] && m.getCurrentPosition()[1] == goalPosition[1]) {
-                        // add goal back to map before printing
-                        // String line = m.getMap().get(goalPosition[0]);
-                        // line = line.substring(0,goalPosition[1]) + 'G' + line.substring(goalPosition[1]+1);
-                        // m.getMap().set(goalPosition[0],line);
                         m.printMap();
                         m.printPath();
                         System.out.println("NUMBER OF EXPANSIONS: " + _numExpansions);
@@ -126,11 +116,12 @@ public class PathFinder {
         System.out.println("NO PATH TO GOAL FOUND.");
     }
 
-    private void bestFirstSearch(Map initMap) {
+    private void heuristicSearch(Map initMap) {
         Comparator<Map> mapComparitor = new Comparator<Map>() {
             @Override
             public int compare(Map map1, Map map2) {
-                return heuristic(map1) - heuristic(map2);
+                return _selectedSearchType == SEARCHTYPE.BESTFIRST ? heuristic(map1) - heuristic(map2) : 
+                (heuristic(map1)+map1.getPath().size()) - (heuristic(map2)+map2.getPath().size());
             }
 
             private int heuristic(Map map) {
@@ -156,13 +147,7 @@ public class PathFinder {
             Map[] tempMaps = expandMapState(nextMap, vistedPositions);
             for(Map m : tempMaps) {
                 if(m != null) {
-                    // m.printMap();
-                    // System.out.println();
                     if(m.getCurrentPosition()[0] == goalPosition[0] && m.getCurrentPosition()[1] == goalPosition[1]) {
-                        // add goal back to map before printing
-                        // String line = m.getMap().get(goalPosition[0]);
-                        // line = line.substring(0,goalPosition[1]) + 'G' + line.substring(goalPosition[1]+1);
-                        // m.getMap().set(goalPosition[0],line);
                         m.printMap();
                         m.printPath();
                         System.out.println("NUMBER OF EXPANSIONS: " + _numExpansions);
