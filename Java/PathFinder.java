@@ -117,7 +117,7 @@ public class PathFinder {
                 expandedMaps[0] = new Map(map);
                 expandedMaps[0].addToPath(Map.DIRECTION.NORTH);
         }
-        if(currentPosition[0]+1 > 0 && !vistedPositions.parallelStream().anyMatch(a -> Arrays.equals(a, new int[] {currentPosition[0]+1,currentPosition[1]})) && 
+        if(currentPosition[0]+1 < currentMap.size() && !vistedPositions.parallelStream().anyMatch(a -> Arrays.equals(a, new int[] {currentPosition[0]+1,currentPosition[1]})) && 
         (currentMap.get(currentPosition[0]+1).charAt(currentPosition[1]) == ' ' ||
             currentMap.get(currentPosition[0]+1).charAt(currentPosition[1]) == 'G')) {
                 expandedMaps[1] = new Map(map);
@@ -129,7 +129,7 @@ public class PathFinder {
                 expandedMaps[2] = new Map(map);
                 expandedMaps[2].addToPath(Map.DIRECTION.WEST);
         }
-        if(currentPosition[1]+1 > 0 && !vistedPositions.parallelStream().anyMatch(a -> Arrays.equals(a, new int[] {currentPosition[0],currentPosition[1]+1})) && 
+        if(currentPosition[1]+1 < currentMap.get(currentPosition[0]).length() && !vistedPositions.parallelStream().anyMatch(a -> Arrays.equals(a, new int[] {currentPosition[0],currentPosition[1]+1})) && 
         (currentMap.get(currentPosition[0]).charAt(currentPosition[1]+1) == ' ' ||
             currentMap.get(currentPosition[0]).charAt(currentPosition[1]+1) == 'G')) {
                 expandedMaps[3] = new Map(map);
