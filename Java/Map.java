@@ -69,6 +69,29 @@ public class Map {
         }
     }
 
+    public void printPath() {
+        System.out.print('[');
+        for(DIRECTION d : mapPath) {
+            switch(d) {
+                case NORTH:
+                    System.out.print("North, ");
+                    break;
+                case SOUTH:
+                    System.out.print("South, ");
+                    break;
+                case EAST:
+                    System.out.print("East, ");
+                    break;
+                case WEST:
+                    System.out.print("West, ");
+                    break;
+                default:
+                    break;
+            }
+        }
+        System.out.println(']');
+    }
+
     public int[] getStartPosition() {
         for(int i=0;i<mapString.size();i++) {
             if(mapString.get(i).contains("S")) {
