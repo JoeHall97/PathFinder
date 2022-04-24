@@ -56,9 +56,11 @@ public class Map {
                     break;
             }
 
-            String line = this.mapString.get(tempPosition[0]);
-            line = line.substring(0,tempPosition[1]) + '.' + line.substring(tempPosition[1]+1);
-            this.mapString.set(tempPosition[0], line);
+            if(this.mapString.get(tempPosition[0]).charAt(tempPosition[1]) != 'G') {
+                String line = this.mapString.get(tempPosition[0]);
+                line = line.substring(0,tempPosition[1]) + '.' + line.substring(tempPosition[1]+1);
+                this.mapString.set(tempPosition[0], line);
+            }
         }
         this.currentPosition = tempPosition;
     }
