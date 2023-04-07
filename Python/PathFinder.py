@@ -4,20 +4,19 @@ Created on Wed Aug 21 17:11:14 2019
 @author: Joseph Hall
 """
 from math import sqrt
-import sys
-
-directions = {"north":-1, "south":1, "east":1, "west":-1}
+from sys import argv
 
 class Map:
-    def __init__(self,map: list[str],path: list[str]):
+    def __init__(self,map: list[str],path: list[str]) -> None:
         self.map = map
         self.curr_pos = []
         self.path = path
         self.start_pos = self.__getStartPos()
         self.goal_pos =  self.__getGoalPos()
+        self.directions: dict[str, int] = {"north":-1, "south":1, "east":1, "west":-1}
         self.__drawPath()
 
-    def __str__(self):
+    def __str__(self) -> str:
         s = ""
         for m in self.map:
             s += m
@@ -46,9 +45,9 @@ class Map:
             return
         for p in self.path:
             if(p=="north" or p=="south"):
-                pos[0] += directions[p]
+                pos[0] += self.directions[p]
             else:
-                pos[1] += directions[p]
+                pos[1] += self.directions[p]
             line = self.map[pos[0]]
             self.map[pos[0]] = line[0:pos[1]] + '.' + line[pos[1]+1:len(line)]
         self.curr_pos = pos
@@ -61,7 +60,7 @@ def readMap(map_name) -> str:
 def cost(map) -> int:
     return len(map.path)
 
-def heuristic(map):
+def heuristic(map) -> float:
     goal_pos = map.goal_pos
     curr_pos = map.curr_pos
     # √((posX-goalX)^2 + (posY-goalY)^2)
@@ -69,7 +68,7 @@ def heuristic(map):
     y_value = (curr_pos[1]-goal_pos[1]) * (curr_pos[1]-goal_pos[1])
     return sqrt(x_value+y_value)
 
-def heuristicAndCost(map):
+def heuristicAndCost(map) -> float:
     return(heuristic(map)+cost(map))
 
 def expand(map,visted_positions) -> list[Map]:
@@ -139,12 +138,12 @@ def searchMap(debug,fileName,search_type) -> None:
 
 def main() -> None:
     # alogrithms = ["a-star", "best-first", "breadth-first", "depth-first"]
-    if len(sys.argv) == 4:
-        searchMap(True,str(sys.argv[2]),str(sys.argv[3]))
-    elif len(sys.argv) == 3:
-        searchMap(False,str(sys.argv[1]),str(sys.argv[2]))
+    if len(argv) == 4:
+        searchMap(True,str(argv[2]),str(argv[3]))
+    elif len(argv) == 3:
+        searchMap(False,str(argv[1]),str(argv[2]))
     else:
-        searchMap(False,"../Maps/map2.txt","a-star")
+        searchMap(False,"../Maps/map3.txt","a-star")
 
 if __name__ == "__main__":  
     main()
