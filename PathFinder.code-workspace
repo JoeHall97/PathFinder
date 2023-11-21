@@ -1,0 +1,20 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "Go"
+		},
+		{
+			"path": "Java"
+		},
+		{
+			"path": "Python"
+		},
+		{
+			"path": "Maps"
+		}
+	],
+	"settings": {}
+}
