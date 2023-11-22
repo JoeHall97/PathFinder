@@ -6,11 +6,12 @@ Created on Wed Aug 21 17:11:14 2019
 from math import sqrt
 from sys import argv
 import time
+from PriorityQueue import PriorityQueue
 
 directions: dict[str, int] = {"north":-1, "south":1, "east":1, "west":-1}
 
 class Map:
-    def __init__(self,map: list[str],path: list[str]) -> None:
+    def __init__(self, map: list[str], path: list[str]) -> None:
         self.map = map
         self.curr_pos = []
         self.path = path
@@ -83,37 +84,32 @@ def readMap(map_name: str) -> str:
     map = [line for line in m]
     return map
         
-def expand(map: Map,visted_positions: set) -> list[Map]:
+def expand(map: Map, visted_positions: set) -> list[Map]:
     maps = []
     pos = map.curr_pos
     # check north
-    if str([pos[0]-1,pos[1]]) not in visted_positions and map.checkPositionForExpansion([pos[0]-1,pos[1]]):
+    if str([pos[0]-1, pos[1]]) not in visted_positions and map.checkPositionForExpansion([pos[0]-1, pos[1]]):
         new_path = map.path.copy()
         new_path.append("north")
-        maps.append(Map(map.map.copy(),new_path))
+        maps.append(Map(map.map.copy(), new_path))
     # check south
-    if str([pos[0]+1,pos[1]]) not in visted_positions and map.checkPositionForExpansion([pos[0]+1,pos[1]]):
+    if str([pos[0]+1, pos[1]]) not in visted_positions and map.checkPositionForExpansion([pos[0]+1, pos[1]]):
         new_path = map.path.copy()
         new_path.append("south")
-        maps.append(Map(map.map.copy(),new_path))
+        maps.append(Map(map.map.copy(), new_path))
     # check west
-    if str([pos[0],pos[1]-1]) not in visted_positions and map.checkPositionForExpansion([pos[0],pos[1]-1]):
+    if str([pos[0], pos[1]-1]) not in visted_positions and map.checkPositionForExpansion([pos[0], pos[1]-1]):
         new_path = map.path.copy()
         new_path.append("west")
-        maps.append(Map(map.map.copy(),new_path))
+        maps.append(Map(map.map.copy(), new_path))
     # check east
-    if str([pos[0],pos[1]+1]) not in visted_positions and map.checkPositionForExpansion([pos[0],pos[1]+1]):
+    if str([pos[0], pos[1]+1]) not in visted_positions and map.checkPositionForExpansion([pos[0], pos[1]+1]):
         new_path = map.path.copy()
         new_path.append("east")
-        maps.append(Map(map.map.copy(),new_path))
+        maps.append(Map(map.map.copy(), new_path))
     return maps
 
-def searchMap(debug: bool,fileName: str,search_type: str) -> None:
-    alogrithms = set(["a-star", "best-first", "breadth-first", "depth-first"])
-    if search_type not in alogrithms:
-        print(f"Search type {search_type} is not a valid search type.")
-        return
-
+def searchMap(debug: bool, fileName: str, search_type: str) -> None:
     search_map = Map(readMap(fileName),[])
     maps = [search_map]
     visted_positions = set(search_map.start_pos_str)
@@ -127,7 +123,7 @@ def searchMap(debug: bool,fileName: str,search_type: str) -> None:
             time.sleep(0.25)
         
         num_expansions += 1
-        for m in expand(maps.pop(0),visted_positions):
+        for m in expand(maps.pop(0), visted_positions):
             if goal_pos == m.curr_pos:
                 # add goal back to map
                 goal_line = m.map[goal_pos[0]]
@@ -145,19 +141,54 @@ def searchMap(debug: bool,fileName: str,search_type: str) -> None:
             else:
                 maps.append(m)    
             visted_positions.add(m.curr_pos_str)
+
+def searchMapHeuristic(debug: bool, fileName: str, heuristic_type: str) -> None:
+    search_map = Map(readMap(fileName),[])
+    maps = PriorityQueue()
+    visted_positions = set(search_map.start_pos_str)
+    goal_pos = search_map.goal_pos
+    num_expansions = 0
+
+    priority = search_map.heuristic() if heuristic_type == "best-first" else search_map.heuristicAndCost()
+    maps.insert(search_map,priority)
+    
+    while True:
+        if debug:
+            print(maps[0])
+            print(f"Number of expansions: {str(num_expansions)}")
+            time.sleep(0.25)
         
-        if search_type == "a-star":
-            maps = sorted(maps,key=Map.heuristicAndCost,reverse=False)
-        elif search_type == "best-first":
-            maps = sorted(maps,key=Map.heuristic)            
+        num_expansions += 1
+        for m in expand(maps.pop(), visted_positions):
+            if goal_pos == m.curr_pos:
+                # add goal back to map
+                goal_line = m.map[goal_pos[0]]
+                gl1 = goal_line[0:goal_pos[1]]
+                gl2 = goal_line[goal_pos[1]+1:len(goal_line)]
+                goal_line = gl1 + 'G' +  gl2
+                m.map[goal_pos[0]] = goal_line
+
+                print(m)
+                print(f"Number of expansions: {str(num_expansions)}")
+                return
+
+            priority = m.heuristic() if heuristic_type == "best-first" else m.heuristicAndCost()
+            maps.insert(m,priority)
+            visted_positions.add(m.curr_pos_str)
 
 def main() -> None:
-    if len(argv) == 4:
-        searchMap(True,str(argv[2]),str(argv[3]))
-    elif len(argv) == 3:
-        searchMap(False,str(argv[1]),str(argv[2]))
+    if len(argv) == 1:
+        searchMapHeuristic(False,"../Maps/map3.txt","best-first")
     else:
-        searchMap(False,"../Maps/map3.txt","depth-first")
+        alogrithms = set(["a-star", "best-first", "breadth-first", "depth-first"])
+        last_arg_pos = len(argv)-1
+        if argv[last_arg_pos] not in alogrithms:
+            print(f"Search type {argv[last_arg_pos]} is not a valid search type.")
+            return
+        if argv[last_arg_pos] in alogrithms[2:]:
+            searchMap(len(argv) == 4, argv[last_arg_pos-1], argv[last_arg_pos])
+        else:
+            searchMapHeuristic(len(argv) == 4, argv[last_arg_pos-1], argv[last_arg_pos])
 
 if __name__ == "__main__":  
     main()
