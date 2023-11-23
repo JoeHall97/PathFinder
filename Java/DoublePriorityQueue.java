@@ -35,7 +35,7 @@ public class DoublePriorityQueue<T> {
         }
 
         Node curr = head.next, prev = head;
-        while (curr != null && Double.compare(curr.priority, priority) > 0) {
+        while (curr != null && Double.compare(curr.priority, priority) < 0) {
             prev = curr;
             curr = curr.next;
         }

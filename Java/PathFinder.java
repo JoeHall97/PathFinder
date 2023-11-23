@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
-import java.util.Comparator;
 import java.util.HashSet;
 
 public class PathFinder {
@@ -23,7 +22,7 @@ public class PathFinder {
     public static void main(String args[]) {
         PathFinder pathFinder = new PathFinder();
         if(args.length < 2) {
-            _selectedSearchType = SEARCHTYPE.BESTFIRST;
+            _selectedSearchType = SEARCHTYPE.ASTAR;
             pathFinder.findPathInMap("../Maps/map3.txt");
         } else if(args.length == 2) {
             try {
