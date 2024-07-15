@@ -5,3 +5,5 @@ a.out
 # debug files
 output.txt
 out.txt
+# pycache
+__pycache__

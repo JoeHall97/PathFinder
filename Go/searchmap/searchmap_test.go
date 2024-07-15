@@ -28,27 +28,27 @@ func TestMapExpand(t *testing.T) {
 
 	visited := map[string]bool{}
 
-	// em := pm.expandMap(visited)
+	em := pm.expandMap(visited)
 
-	// if len(em) != 2 {
-	// 	t.Fatalf("expected expanded maps to have a length of 2. got=%d", len(em))
-	// }
+	if len(em) != 2 {
+		t.Fatalf("expected expanded maps to have a length of 2. got=%d", len(em))
+	}
 
-	// if em[0].path[0] == EAST || em[0].path[0] == NORTH {
-	// 	s := "NORTH"
-	// 	if em[0].path[0] == EAST {
-	// 		s = "EAST"
-	// 	}
-	// 	t.Fatalf("expected west or south direction in path. got=%s", s)
-	// }
+	if em[0].path[0] == EAST || em[0].path[0] == NORTH {
+		s := "NORTH"
+		if em[0].path[0] == EAST {
+			s = "EAST"
+		}
+		t.Fatalf("expected west or south direction in path. got=%s", s)
+	}
 
-	// if em[1].path[0] == EAST || em[1].path[0] == NORTH {
-	// 	s := "NORTH"
-	// 	if em[0].path[0] == EAST {
-	// 		s = "EAST"
-	// 	}
-	// 	t.Fatalf("expected west or south direction in path. got=%s", s)
-	// }
+	if em[1].path[0] == EAST || em[1].path[0] == NORTH {
+		s := "NORTH"
+		if em[0].path[0] == EAST {
+			s = "EAST"
+		}
+		t.Fatalf("expected west or south direction in path. got=%s", s)
+	}
 
 	pm.path = append(pm.path, SOUTH, EAST, EAST)
 
@@ -59,10 +59,10 @@ func TestMapExpand(t *testing.T) {
 	visited[fmt.Sprintf("%d,%d", x+1, y+2)] = true
 	pm.setCurrentPosition()
 
-	em := pm.expandMap(visited)
+	em = pm.expandMap(visited)
 	fmt.Printf("x: %d,y: %d\n", pm.currentPosition[0], pm.currentPosition[1])
 
-	if len(em) != 3 {
+	if len(em) != 2 {
 		t.Fatalf("expected expanded maps to have a length of 3. got=%d", len(em))
 	}
 }
