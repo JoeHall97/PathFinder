@@ -73,9 +73,14 @@ class Map:
     def heuristicAndCost(self) -> float:
         return(self.heuristic()+self.cost())
     
+    def checkInBounds(self, pos: list[int]) -> bool:
+        if pos[1] >= len(self.map[0]) or pos[1] < 0:
+            return False
+        return not (pos[0] >= len(self.map) or pos[0] < 0)
+    
     def checkPositionForExpansion(self, pos: list[int]) -> bool:
-        if pos[1] > len(self.map[0]) or pos[1] < 0 or pos[0] > len(self.map) or pos[0] < 0:
-            return False 
+        if not self.checkInBounds(pos):
+            return False
         return self.map[pos[0]][pos[1]] == ' ' or self.map[pos[0]][pos[1]] == 'G'
 
 
@@ -149,7 +154,10 @@ def searchMapHeuristic(debug: bool, fileName: str, heuristic_type: str) -> None:
     goal_pos = search_map.goal_pos
     num_expansions = 0
 
-    priority = search_map.heuristic() if heuristic_type == "best-first" else search_map.heuristicAndCost()
+    if heuristic_type == "best-first":
+        priority = search_map.heuristic()         
+    else:
+        priority = search_map.heuristicAndCost()
     maps.insert(search_map,priority)
     
     while True:
@@ -172,7 +180,10 @@ def searchMapHeuristic(debug: bool, fileName: str, heuristic_type: str) -> None:
                 print(f"Number of expansions: {str(num_expansions)}")
                 return
 
-            priority = m.heuristic() if heuristic_type == "best-first" else m.heuristicAndCost()
+            if heuristic_type == "best-first":
+                priority = m.heuristic() 
+            else:
+                priority = m.heuristicAndCost()
             maps.insert(m,priority)
             visted_positions.add(m.curr_pos_str)
 
