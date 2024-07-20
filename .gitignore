@@ -1,5 +1,7 @@
 # compiled c output
 a.out
+PathFinder
+PathFinder.exe
 # compiled java ouput
 *.class
 # debug files

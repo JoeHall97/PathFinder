@@ -19,5 +19,9 @@
 			"path": "C"
 		}
 	],
-	"settings": {}
+	"settings": {
+		"files.associations": {
+			"Main.H": "cpp"
+		}
+	}
 }

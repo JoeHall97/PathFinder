@@ -17,6 +17,6 @@ typedef struct Map {
     int pathLength;
 } Map;
 
-int readInMap(FILE *fp, Map *map);
+Map readMap(FILE *fp);
 
 void printMap(Map *map);
