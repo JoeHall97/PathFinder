@@ -1,20 +1,25 @@
-#include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 
 #include "PathFinder.h"
 
 int main(int argc, char *argv[]) {
 	FILE *fp;
 	char *prog = argv[0];  /* program name for errors */
-	Map map;
+	
+	Map map = {};
+	MapList mapList = {
+		.item = NULL,
+		.next = NULL,
+	};
+	int sChar = START_CHARACTER;
+	int gChar = GOAL_CHARACTER;
 
 	if (argc == 1)  {
 		if ((fp = fopen("../Maps/map.txt", "r")) == NULL) {
 			fprintf(stderr, "%s: can't open %s\n", prog, "../Maps/map.txt");
 			exit(1);
 		} else {
-			map = readMap(fp);
+			map_read_file(fp, &map);
 			fclose(fp);
 		}
 	}
@@ -23,7 +28,7 @@ int main(int argc, char *argv[]) {
 			fprintf(stderr, "%s: can't open %s\n", prog, *argv);
 			exit(1);
 		} else {
-			map = readMap(fp);
+			map_read_file(fp, &map);
 			fclose(fp);
 		}
 	}
@@ -33,7 +38,10 @@ int main(int argc, char *argv[]) {
 		exit(2);
 	}
 
-	printMap(&map);
+	maplist_append_item(&mapList, &map);
+
+	Position *startPos = map_get_char_position(&map, &sChar);
+	Position *goalPos = map_get_char_position(&map, &gChar);
 
 	exit(0);
 }
