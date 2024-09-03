@@ -4,5 +4,5 @@ import "pathmap/searchmap"
 
 func main() {
 	f := "../Maps/map.txt"
-	searchmap.SearchMap(&f)
+	searchmap.SearchMapFromFile(&f)
 }

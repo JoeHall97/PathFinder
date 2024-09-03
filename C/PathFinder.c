@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "PathFinder.h"
+#include "pathfinder.h"
 
 ////////////////////////////////////////////////////
 // Map Functions
@@ -11,16 +11,14 @@
 /// @param fp A file pointer to the map file.
 /// @param map The map object to set the map's dimensions.
 /// @return 0 if successful, -1 if not
-int map_get_dimensions(FILE *fp, Map *map)
-{
+int map_get_dimensions(FILE *fp, Map *map) {
     int mapWidth = 0;
     int mapHeight = 0;
     int c;
 
     // TODO: validate the map conforms to expected format
 
-    while ((c = getc(fp)) != EOF)
-    {
+    while ((c = getc(fp)) != EOF) {
         if (c == '\n' || c == ' ')
             break;
         ++mapWidth;
@@ -31,8 +29,7 @@ int map_get_dimensions(FILE *fp, Map *map)
     // white-space
     char row[mapWidth + 10];
 
-    while (fgets(row, (mapWidth + 10) * sizeof(char *), fp))
-    {
+    while (fgets(row, (mapWidth + 10) * sizeof(char *), fp)) {
         if (row[0] != '|' && row[0] != '+')
             break;
         ++mapHeight;
@@ -44,25 +41,22 @@ int map_get_dimensions(FILE *fp, Map *map)
     return 0;
 }
 
-int map_read_file(FILE *fp, Map *map)
-{
+int map_read_file(FILE *fp, Map *map) {
     map_get_dimensions(fp, map);
     // increase row size for new line characters & in case there is any
     // white-space
     char row[map->width + 10];
     int i = 0;
 
-    map->map = (char **)malloc(map->height * sizeof(char *));
+    map->map = (char **) malloc(map->height * sizeof(char *));
 
     // ignore first row, as it just contains boundary marks
     fgets(row, sizeof(row), fp);
 
-    while (fgets(row, (map->width + 10) * sizeof(row), fp) && i < map->height)
-    {
-        map->map[i] = (char *)malloc(map->width * sizeof(char));
+    while (fgets(row, (map->width + 10) * sizeof(row), fp) && i < map->height) {
+        map->map[i] = (char *) malloc(map->width * sizeof(char));
 
-        for (int j = 0; j < map->width; j++)
-        {
+        for (int j = 0; j < map->width; j++) {
             map->map[i][j] = row[j + 1];
         }
 
@@ -72,16 +66,14 @@ int map_read_file(FILE *fp, Map *map)
     return 0;
 }
 
-void map_print(const Map *map)
-{
+void map_print(const Map *map) {
     // top border
     printf("+");
     for (int i = 0; i < map->width; i++)
         printf("-");
     printf("+\n");
 
-    for (int i = 0; i < map->height; i++)
-    {
+    for (int i = 0; i < map->height; i++) {
         printf("|");
         printf("%s", *(map->map + i));
         printf("|\n");
@@ -97,16 +89,12 @@ void map_print(const Map *map)
     printf("Width: %d, Height: %d\n", map->width, map->height);
 }
 
-Position *map_get_start_position(Map *map)
-{
-    Position *pos = (Position *)malloc(sizeof(Position));
+Position *map_get_char_position(const Map *map, const int *c) {
+    Position *pos = malloc(sizeof(Position));
 
-    for (int i = 0; i < map->height; i++)
-    {
-        for (int j = 0; j < map->width; j++)
-        {
-            if (map->map[i][j] == 'S')
-            {
+    for (int i = 0; i < map->height; i++) {
+        for (int j = 0; j < map->width; j++) {
+            if (map->map[i][j] == *c) {
                 pos->y = i;
                 pos->x = j;
                 return pos;
@@ -119,54 +107,29 @@ Position *map_get_start_position(Map *map)
     return pos;
 }
 
-Position *map_get_char_position(const Map *map, const int *c)
-{
-    Position *pos = (Position *)malloc(sizeof(Position));
-
-    for (int i = 0; i < map->height; i++)
-    {
-        for (int j = 0; j < map->width; j++)
-        {
-            if (map->map[i][j] == *c)
-            {
-                pos->y = i;
-                pos->x = j;
-                return pos;
-            }
-        }
-    }
-
-    pos->x = -1;
-    pos->y = -1;
-    return pos;
-}
-
-Position *map_get_current_position(const Position *start, const Path *path)
-{
-    Position *res = (Position *)malloc(sizeof(Position));
+Position *map_get_current_position(const Position *start, const Path *path) {
+    Position *res = malloc(sizeof(Position));
     res->x = start->x;
     res->y = start->y;
 
-    for (int i = 0; i < path->len; i++)
-    {
-        switch (path->path[i])
-        {
-        case NORTH:
-            res->y--;
-            break;
-        case SOUTH:
-            res->y++;
-            break;
-        case EAST:
-            res->x++;
-            break;
-        case WEST:
-            res->x--;
-            break;
-        default:
-            res->x = -1;
-            res->y = -1;
-            return res;
+    for (int i = 0; i < path->len; i++) {
+        switch (path->path[i]) {
+            case NORTH:
+                res->y--;
+                break;
+            case SOUTH:
+                res->y++;
+                break;
+            case EAST:
+                res->x++;
+                break;
+            case WEST:
+                res->x--;
+                break;
+            default:
+                res->x = -1;
+                res->y = -1;
+                return res;
         }
     }
 
@@ -177,37 +140,53 @@ Position *map_get_current_position(const Position *start, const Path *path)
 // Path List Functions
 ////////////////////////////////////////////////////
 
-void pathlist_append_item(PathList *list, Path *item)
-{
-    if (list->item == NULL)
-    {
+PathList *pathlist_append_item(PathList *list, Path *item) {
+    if (list == NULL)
+        return NULL;
+
+    if (list->item == NULL) {
         list->item = item;
-        return;
+        return list;
     }
 
-    MapList newItem = {.item = item, .next = NULL};
-    MapList *temp = list;
-    while (temp->next != NULL)
-        temp = temp->next;
+    PathList *newNode = malloc(sizeof(PathList));
+    newNode->item = item;
+    newNode->next = NULL;
 
-    temp->next = &newItem;
+    PathList **temp = &list;
+    while ((*temp)->next) {
+        temp = &(*temp)->next;
+    }
+
+    (*temp)->next = newNode;
+    return list;
 }
 
-void pathlist_push_item(PathList *list, Path *item)
-{
-    // TODO: check this works...
+PathList *pathlist_push_item(PathList *list, Path *item) {
     PathList *newHead = (PathList *) malloc(sizeof(PathList));
     newHead->item = item;
     newHead->next = list;
-    list = newHead;
+
+    return newHead;
 }
 
-void pathlist_print(PathList *list)
-{
+Path *pathlist_pop_item(PathList **list) {
+    if ((*list) == NULL)
+        return NULL;
+
+    Path *res = (*list)->item;
+    list = &(*list)->next;
+    return res;
+}
+
+void pathlist_print(PathList *list) {
+    if (list == NULL)
+        return;
     PathList *temp = list;
-    
-    while (temp != NULL) {
+
+    while (temp->next != NULL) {
         printf("LEN: %d\n", temp->item->len);
         temp = temp->next;
     }
+    printf("LEN: %d\n", temp->item->len);
 }
