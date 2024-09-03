@@ -1,0 +1,3 @@
+/Users/joe/Projects/PathFinder/C/CMakeFiles/PathFinder.dir
+/Users/joe/Projects/PathFinder/C/CMakeFiles/edit_cache.dir
+/Users/joe/Projects/PathFinder/C/CMakeFiles/rebuild_cache.dir
